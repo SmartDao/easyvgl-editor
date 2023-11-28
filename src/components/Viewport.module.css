@@ -1,0 +1,21 @@
+.list{
+    margin:0;
+    padding: 0;
+}
+
+.layerList
+{
+    background: #282c34;
+    list-style: none;
+    border-top: 1px solid #181c24;
+}
+
+.layerList:nth-child(2)
+{
+    /*background: #181c24;*/
+}
+
+.placeholder{
+    border-top: 2px solid aqua;
+    background: #61dafb;
+}
