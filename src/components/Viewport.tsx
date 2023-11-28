@@ -1,18 +1,18 @@
 import React, {useState} from 'react'
-import {Box, Button, Text, Group, Space, Stack, ButtonGroup, rgba} from "@mantine/core";
+import {Box, Button, Input, Text, Group, Space, Stack, ButtonGroup, rgba} from "@mantine/core";
 import { ReactTreeList, ReactTreeListProps} from "@bartaxyz/react-tree-list";
 import { useEditorContext} from "../context/EditorContext";
-import { IconChevronRight } from '@tabler/icons-react';
-
+import { IconChevronRight, IconHexagonLetterI } from '@tabler/icons-react';
 
 const Viewport = () => {
 
-    const { widgetNodes, selectedNode, onWidgetNodeDrop, onWidgetNodesChange, onWidgetNodeSelected } = useEditorContext();
+    const { widgetNodes, widgetTool, selectedNode, onWidgetNodeDrop, onWidgetNodesChange, onWidgetNodeSelected } = useEditorContext();
 
     return (
         <Group pt={50} grow preventGrowOverflow={false} id='workSpace' justify="space-between">
             <Stack maw={300}>
                 <Box>
+                     {/*todo padding-left in each line little big*/}
                     <ReactTreeList
                         data={widgetNodes}
                         draggable={true}
@@ -43,8 +43,15 @@ const Viewport = () => {
                     {
                         selectedNode && (
                             <Stack>
-                                <Box>{selectedNode.id}</Box>
-                                <Box>{selectedNode.icon} {selectedNode.label}</Box>
+                                <Input radius="xl"
+                                       value={selectedNode.label?.toString()}
+                                       placeholder="Set object name"
+                                       onChange={(event) => {
+                                           widgetTool?.setName(selectedNode, event.currentTarget.value);
+                                       }}
+                                />
+                                <Group gap={5}><IconHexagonLetterI size={18}/><Text>{selectedNode.id}</Text></Group>
+                                <Group gap={5}>{selectedNode.icon}<Text>{selectedNode.label}</Text></Group>
                                 <Box>{selectedNode.children?'HasChildren':'singleNode'}</Box>
                             </Stack>
                         )

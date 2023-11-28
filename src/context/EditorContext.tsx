@@ -1,8 +1,12 @@
 import React, {createContext, useContext, useState} from "react";
+import { useImmer } from "use-immer";
+import {Draft, produce, setAutoFreeze} from "immer";
 
 import {EditorSetup} from "../core/EditorSetup";
 import {ReactTreeListItemType} from "@bartaxyz/react-tree-list";
 import TypedObjectIcon from "../components/TypedObjectIcon";
+import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
+setAutoFreeze(false);
 
 export enum egWidgetTypes
 {
@@ -30,9 +34,15 @@ export type egPage =
     name: string
 }
 
+type WidgetTool =
+{
+    setName: (node:ReactTreeListItemType, value:string) => void;
+}
+
 type EditorContextType =
 {
     name:string;
+    widgetTool: WidgetTool|undefined,
     selectedType: egWidgetTypes|undefined,
     selectedNode: ReactTreeListItemType|undefined,
     widgetNodes: ReactTreeListItemType[],
@@ -67,6 +77,7 @@ const initialWidgetNodes:ReactTreeListItemType[] =
 
 const EditorContext = createContext<EditorContextType>({
     name:'EditorContext',
+    widgetTool: undefined,
     selectedType: undefined,
     selectedNode: undefined,
     widgetNodes: [],
@@ -90,6 +101,7 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
     // when change ( issue  1. add object not trigger  2. trigger when select )
     const onWidgetNodesChange = (data: ReactTreeListItemType[]) => {
         setWidgetNodes(data);
+        console.log(data);
         console.log("tree list changed.");
     };
 
@@ -105,20 +117,54 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         console.log("dragNode:", dragNode);
         console.log("dragType:", dragType);
     };
-    // todo move to context
 
 
     const addWidgetNode = (t:egWidgetTypes) =>
     {
-        setWidgetNodes([...widgetNodes,{
-            label: t,
-            icon: <TypedObjectIcon icon={t}/>
-        }])
+        setWidgetNodes( produce((draft) => {
+            draft.push({
+                label: t,
+                icon: <TypedObjectIcon icon={t}/>
+            })
+        }));
     }
+
+    const setWidgetName = (n:ReactTreeListItemType, value:string) => {
+        if (value.length>24) return;
+
+        // produce immer update ( update input error * cannot update deep data )
+        // setWidgetNodes(produce((draft) => {
+        //     const node = draft.find(a => a.id === n.id);
+        //     if (node) {
+        //         node.label = value;
+        //         // setSelectedNode(node);
+        //     }
+        //     // console.log(node)
+        // }));
+
+        // setState update ( cannot update deep data )
+        // const nextWidgetNodes:ReactTreeListItemType[] = widgetNodes.map( (node)=>{
+        //     if (node.id===n.id){
+        //         node.label = value;
+        //         setSelectedNode(node);
+        //         return node;
+        //     }else
+        //         return node;
+        // });
+        // setWidgetNodes(nextWidgetNodes);
+
+
+
+    };
+
+    const widgetTool = {
+        setName: setWidgetName
+    };
 
     const contextValue = {
         name,
         editor,
+        widgetTool,
         selectedType,
         selectedNode,
         widgetNodes,
