@@ -9,6 +9,7 @@ import {
     IconPhoto,
     IconTextSize,
     IconHandFinger,
+    IconFileExport
 } from '@tabler/icons-react';
 
 import {egWidgetTypes, egWidgetTypes as ObjType, useEditorContext} from '../context/EditorContext';
@@ -18,10 +19,10 @@ import TypedObjectIcon from "./TypedObjectIcon";
 
 const Navbar = () => {
 
-    const { widgetNodes, setWidgetNodes, addWidgetNode } = useEditorContext();
+    const { widgetNodes, setWidgetNodes, addWidgetNode, saveToFile } = useEditorContext();
 
     return (
-        <Group bg={'#111'} grow pos={'fixed'} w="100%" preventGrowOverflow={false} top={0} left={0} justify='space-between'>
+        <Group bg={'#111'} grow w="100%" preventGrowOverflow={false} top={0} left={0} justify='space-between'>
             <Group>
                 <Image src={easyVGLLogo} w={200} mx={20}/>
                 <Space w="md" />
@@ -71,6 +72,11 @@ const Navbar = () => {
                     <ActionIcon variant="transparent" color="gray" radius="xl" aria-label="extra">
                         <IconNewSection  stroke={1.5} />
                     </ActionIcon>
+
+                    <ActionIcon variant="transparent" color="gray" radius="xl" aria-label="extra">
+                        <IconFileExport  stroke={1.5} onClick={()=>{ saveToFile() }}/>
+                    </ActionIcon>
+
                 </>
                 <Space w="md" />
             </Group>
