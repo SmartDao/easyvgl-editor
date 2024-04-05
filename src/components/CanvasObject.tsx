@@ -41,6 +41,10 @@ const CanvasObject = ( item:WidgetItemType ) => {
             />;
         case egWidgetTypes.text:
             return <TextItem
+                draggable
+                onDragMove={onObjectDragMove}
+                onDragEnd={onObjectDragEnd}
+                onClick={ (evt)=>{objectOnClicked(evt,item)} }
                 text={item.text||'Text'}
                 id={item.id}
                 key={item.id}
@@ -54,6 +58,10 @@ const CanvasObject = ( item:WidgetItemType ) => {
             />;
         case egWidgetTypes.button:
             return <Rect
+                draggable
+                onDragMove={onObjectDragMove}
+                onDragEnd={onObjectDragEnd}
+                onClick={ (evt)=>{objectOnClicked(evt,item)} }
                 id={item.id}
                 key={item.id}
                 width={item.properties.width}
@@ -73,7 +81,20 @@ const CanvasObject = ( item:WidgetItemType ) => {
         // case egWidgetTypes.tabview:
         //     return </>;
         default:
-            return <Rect id={item.id} key={item.id} width={item.properties.width} height={item.properties.height} x={item.properties.x} y={item.properties.y} fill={item.properties.color} opacity={item.properties.opacity?item.properties.opacity/100:0} cornerRadius={item.properties.radius}/>;
+            return <Rect
+                draggable
+                onDragMove={onObjectDragMove}
+                onDragEnd={onObjectDragEnd}
+                onClick={ (evt)=>{objectOnClicked(evt,item)} }
+                id={item.id}
+                key={item.id}
+                width={item.properties.width}
+                height={item.properties.height}
+                x={item.properties.x} y={item.properties.y}
+                fill={item.properties.color}
+                opacity={item.properties.opacity?item.properties.opacity/100:0}
+                cornerRadius={item.properties.radius}
+            />;
     }
 }
 export default CanvasObject

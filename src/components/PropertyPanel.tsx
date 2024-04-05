@@ -4,13 +4,12 @@ import {IconHexagonLetterI,IconAugmentedReality,IconFocus2} from "@tabler/icons-
 import {useEditorContext} from "../context/EditorContext";
 import EasyVglConfig from "../context/Configs";
 
-const PropertyPanel = ( p: {showCoding:()=>void } ) => {
+const PropertyPanel = () => {
 
     const { widgetTool, selectedNode, onWidgetNodeDrop, onWidgetNodesChange, onWidgetNodeSelected } = useEditorContext();
 
     return (
         <Stack w="240px">
-            <Button onClick={p.showCoding}>Show Coding</Button>
             <Text>Properties</Text>
             {
                 selectedNode && (

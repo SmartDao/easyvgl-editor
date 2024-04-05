@@ -41,7 +41,7 @@ const propertiesToEasyVGLView = function ( item: WidgetItemType, depth: number, 
     + `ESY_STYLE( ${grObjectName(item)}, ess_${grObjectName(item)} );\n`
 }
 
-const recursiveGenCode = (item:WidgetItemType, depth:number, parent?: WidgetItemType): string => {
+const recursiveGenView = (item:WidgetItemType, depth:number, parent?: WidgetItemType): string => {
 
     let content = "";
 
@@ -49,30 +49,35 @@ const recursiveGenCode = (item:WidgetItemType, depth:number, parent?: WidgetItem
 
     if (item.children && item.children.length > 0)
         for (let i = 0; i < item.children.length; i++)
-            content += recursiveGenCode(item.children[i], depth + 1, item);
+            content += recursiveGenView(item.children[i], depth + 1, item);
 
     return content;
 }
 
 const ConverterEASYGL_C =
 {
-    genStyles(item: WidgetItemType[]): string
+    genStyles(items: WidgetItemType[]): string
     {
-        return ""
+        let styles = "";
+
+        for (let i = 0; i < items.length; i++)
+            styles += recursiveGenStyle( items[i], 0, undefined );
+
+        return styles;
     },
 
-    genViews(item: WidgetItemType[]): string
+    genViews(items: WidgetItemType[]): string
     {
-        return ""
+        let views = "";
+
+        for (let i = 0; i < items.length; i++)
+            views += recursiveGenView( items[i], 0, undefined );
+
+        return views;
     },
 
     genPage( items: WidgetItemType[] ):string
     {
-
-        let fileContent = '';
-
-        // const useLVGLCase = false;
-        //
         // const recursiveGenerateCoding = (item:WidgetItemType, depth:number, parent?: WidgetItemType) =>
         // {
         //     if (useLVGLCase) {
@@ -91,33 +96,12 @@ const ConverterEASYGL_C =
         //
         //         fileContent += "\n";
         //     }
-        //     else
-        //     {
-        //         fileContent += `EsyViewStyle ess_${grObjectName(item)}[] = {\n`
-        //         fileContent += propertiesToEasyVGL( item );
-        //         fileContent += `};\n`
-        //
-        //         fileContent += `ESY_CREATE( ${item.properties.type}, ${ parent ? grObjectName(parent) : 'NULL' } );\n`
-        //         fileContent += `ESY_STYLE( ${grObjectName(item)}, ess_${grObjectName(item)} );\n`
-        //
-        //         fileContent += "\n";
-        //     }
         //     if (item.children && item.children.length > 0)
         //         for (let i = 0; i < item.children.length; i++)
         //             recursiveGenerateCoding(item.children[i], depth + 1, item);
         //
         // }
-
-        for (let i = 0; i < items.length; i++)
-            fileContent += recursiveGenStyle( items[i], 0, undefined );
-
-        for (let i = 0; i < items.length; i++)
-            fileContent += recursiveGenCode( items[i], 0, undefined );
-
-        // console.log(fileContent);
-        return fileContent;
-
-        // return this.genStyles( items ) + this.genViews( items )
+        return this.genStyles( items ) + this.genViews( items );
     }
 }
 

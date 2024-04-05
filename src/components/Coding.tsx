@@ -1,6 +1,6 @@
 import React, {ReactNode} from 'react'
 import {Box, Code, Flex, Stack, Text} from "@mantine/core";
-import {egWidgetTypes, useEditorContext, WidgetItemType} from "../context/EditorContext";
+import {egWidgetTypes, ProjectExportMode, useEditorContext, WidgetItemType} from "../context/EditorContext";
 
 const Coding = () => {
 
@@ -8,7 +8,7 @@ const Coding = () => {
 
     return (
         <Code block>
-            { saveToFile() }
+            { saveToFile( ProjectExportMode.easyVGL_C ) }
         </Code>
     )
 }

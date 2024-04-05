@@ -1,24 +1,22 @@
 import React from 'react'
-import {Menu, Button, Box, Group, Image, Space, ActionIcon, Avatar, Text, Stack, ButtonGroup} from "@mantine/core";
+import {ActionIcon, Avatar, Button, Group, Image, Menu, Space, Text} from "@mantine/core";
 import {
-    IconArrowsMove,
-    IconHandStop,
-    IconSquareRoundedPlus,
-    IconNewSection,
     Icon3dCubeSphere,
-    IconRectangle,
-    IconPhoto,
-    IconTextSize,
-    IconHandFinger,
-    IconFileExport, IconBrandReact, IconBrandVue, IconBoxAlignBottomLeft
+    IconArrowsMove,
+    IconBoxAlignBottomLeft,
+    IconCode,
+    IconFileExport,
+    IconHandStop,
+    IconNewSection,
+    IconSquareRoundedPlus
 } from '@tabler/icons-react';
 
-import {egWidgetTypes, egWidgetTypes as ObjType, useEditorContext} from '../context/EditorContext';
+import {egWidgetTypes, egWidgetTypes as ObjType, ProjectExportMode, useEditorContext} from '../context/EditorContext';
 
 import easyVGLLogo from "../assets/images/easyvgl-logo.svg";
 import TypedObjectIcon from "./TypedObjectIcon";
 
-const Navbar = () => {
+const Navbar = ( props: { showCoding:()=>void } ) => {
 
     const { widgetNodes, setWidgetNodes, addWidgetNode, saveToFile } = useEditorContext();
 
@@ -94,11 +92,14 @@ const Navbar = () => {
                         </Menu>
 
                     <ActionIcon variant="transparent" color="gray" radius="xl" aria-label="export">
-                        <IconFileExport  stroke={1.5} onClick={()=>{ saveToFile() }}/>
+                        <IconFileExport  stroke={1.5} onClick={()=>{ console.log(saveToFile( ProjectExportMode.LVGL_C )) }}/>
                     </ActionIcon>
 
                 </>
                 <Space w="md" />
+            </Group>
+            <Group>
+                <Button onClick={props.showCoding} variant="subtle"> <IconCode size={20}/> <Space w={5}></Space>Code</Button>
             </Group>
             <Group w={160} maw={160} px={10} py={5}>
                 <Avatar color="cyan" radius="xl">SP</Avatar> <Text>Sprite</Text>

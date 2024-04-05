@@ -8,7 +8,8 @@ import Konva from "konva";
 import KonvaEventObject = Konva.KonvaEventObject;
 import Rect = Konva.Rect;
 import {randomId, useCounter} from "@mantine/hooks";
-import EasyVGLC from "../core/converter/easyVGL-C";
+import ConverterEasyVGLC from "../core/converter/easyVGL-C";
+import ConverterLVGL_C from "../core/converter/LVGL-C";
 
 export enum egWidgetTypes
 {
@@ -20,6 +21,12 @@ export enum egWidgetTypes
     LvRoller = 'LvRoller',
     LvList = 'LvList',
     tabview = 'EsTabview',
+}
+
+export enum ProjectExportMode
+{
+    easyVGL_C,
+    LVGL_C
 }
 
 interface  WidgetProperty
@@ -96,7 +103,7 @@ type EditorContextType =
     setEditor: (editor: EditorSetup) => void;
 
 
-    saveToFile: ()=> string;
+    saveToFile: (mode:ProjectExportMode )=> string;
 }
 
 /** Struct define
@@ -130,7 +137,7 @@ const EditorContext = createContext<EditorContextType>({
     onWidgetNodeSelected: ()=>{},
     onWidgetNodeDrop: ()=>{},
     setEditor: ()=>{},
-    saveToFile: () : string => { return "" },
+    saveToFile: (mode:ProjectExportMode ) : string => { return "" },
     objectOnClicked: ()=>{},
 });
 
@@ -327,9 +334,16 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         console.log(item)
     };
 
-    const saveToFile = () : string => {
+    const saveToFile = ( mode:ProjectExportMode ) : string => {
 
-        return EasyVGLC.genPage( widgetNodes );
+        switch (mode)
+        {
+            case ProjectExportMode.LVGL_C:
+                return ConverterLVGL_C.genPage( widgetNodes );
+            case  ProjectExportMode.easyVGL_C:
+            default:
+                return ConverterEasyVGLC.genPage( widgetNodes );
+        }
     }
 
     const contextValue = {
