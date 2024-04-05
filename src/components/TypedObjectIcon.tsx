@@ -45,13 +45,13 @@ function selectedIcon(iconName: string, size?: IconSizeType) {
 
     switch (iconName) {
 
-        case ObjType.LvImage:
+        case ObjType.image:
             return <IconPhoto size={getIconSize(size)}/>;
 
-        case ObjType.LvLabel:
+        case ObjType.text:
             return <IconTextSize size={getIconSize(size)}/>;
 
-        case ObjType.LvButton:
+        case ObjType.button:
             return <IconHandFinger size={getIconSize(size)}/>;
 
         case ObjType.LvList:
@@ -60,10 +60,10 @@ function selectedIcon(iconName: string, size?: IconSizeType) {
         case ObjType.LvRoller:
             return <IconBaselineDensitySmall size={getIconSize(size)}/>;
 
-        case ObjType.LvTabview:
+        case ObjType.tabview:
             return <IconContainer size={getIconSize(size)}/>;
 
-        case ObjType.LvObject:
+        case ObjType.view:
         default:
             return <IconRectangle size={getIconSize(size)}/>;
     }

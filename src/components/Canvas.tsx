@@ -2,12 +2,12 @@ import React, {ReactNode} from 'react'
 import {Box, Code, Flex, Stack, Text} from "@mantine/core";
 import {egWidgetTypes, useEditorContext, WidgetItemType} from "../context/EditorContext";
 import { useMouse } from '@mantine/hooks';
-import {Stage, Layer, Rect, Text as TextItem} from 'react-konva';
+import {Stage, Layer, Rect, Text as TextItem, Transformer} from 'react-konva';
 import CanvasObject from "./CanvasObject";
 
 const Canvas = () => {
 
-    const { widgetNodes } = useEditorContext();
+    const { widgetNodes,selectedKonvaNode } = useEditorContext();
     const { ref, x, y } = useMouse();
 
     const renderObjectsRecursive: (item: WidgetItemType) => (JSX.Element) = (item: WidgetItemType) => {
@@ -32,6 +32,7 @@ const Canvas = () => {
             <Stage width={window.innerWidth-640} height={window.innerHeight-100}>
                 <Layer>
                     { widgetNodes.map( renderObjectsRecursive ) }
+                    {/*{ selectedKonvaNode && <Transformer node={  }></Transformer> }*/}
                 </Layer>
             </Stage>
             <Box h={20}><Text>{`x: ${x}, y: ${y} `}</Text></Box>

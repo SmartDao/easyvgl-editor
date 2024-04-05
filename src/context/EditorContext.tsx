@@ -1,24 +1,25 @@
 import React, {createContext, useContext, useState} from "react";
-import { useImmer } from "use-immer";
-import {Draft, produce, setAutoFreeze} from "immer";
 import { cloneDeep } from "lodash";
 
 import {EditorSetup} from "../core/EditorSetup";
 import {ReactTreeListItemType} from "@bartaxyz/react-tree-list";
 import TypedObjectIcon from "../components/TypedObjectIcon";
-import {generateUniqueID} from "web-vitals/dist/modules/lib/generateUniqueID";
-import {randomInt} from "crypto";
+import Konva from "konva";
+import KonvaEventObject = Konva.KonvaEventObject;
+import Rect = Konva.Rect;
+import {randomId, useCounter} from "@mantine/hooks";
+import EasyVGLC from "../core/converter/easyVGL-C";
 
 export enum egWidgetTypes
 {
-    LvObject = 'lv_object',
-    LvLabel = 'lv_label',
-    LvButton = 'lv_button',
-    LvImage = 'lv_image',
+    view = 'EsView',
+    text = 'EsText',
+    button = 'EsButton',
+    image = 'EsImage',
 
-    LvRoller = 'lv_roller',
-    LvList = 'lv_list',
-    LvTabview = 'lv_tabview',
+    LvRoller = 'LvRoller',
+    LvList = 'LvList',
+    tabview = 'EsTabview',
 }
 
 interface  WidgetProperty
@@ -81,6 +82,7 @@ type EditorContextType =
     name:string;
     widgetTool: WidgetTool|undefined,
     selectedNode: WidgetItemType|undefined,
+    selectedKonvaNode: Rect|undefined,
     widgetNodes: WidgetItemType[],
 
     setWidgetNodes: (nodes:WidgetItemType[])=> void;
@@ -89,12 +91,12 @@ type EditorContextType =
     onWidgetNodeSelected: (item:WidgetItemType) => void;
     onWidgetNodeDrop: (draggingNode:WidgetItemType, dragNode:WidgetItemType, dragType:string) => void;
 
-
+    objectOnClicked: (evt:KonvaEventObject<MouseEvent>,item:WidgetItemType)=>void;
 
     setEditor: (editor: EditorSetup) => void;
 
 
-    saveToFile: ()=> void;
+    saveToFile: ()=> string;
 }
 
 /** Struct define
@@ -120,6 +122,7 @@ const EditorContext = createContext<EditorContextType>({
     name:'EditorContext',
     widgetTool: undefined,
     selectedNode: undefined,
+    selectedKonvaNode: undefined,
     widgetNodes: [],
     setWidgetNodes: ()=>{},
     addWidgetNode: ()=>{},
@@ -127,22 +130,22 @@ const EditorContext = createContext<EditorContextType>({
     onWidgetNodeSelected: ()=>{},
     onWidgetNodeDrop: ()=>{},
     setEditor: ()=>{},
-    saveToFile: () => {},
+    saveToFile: () : string => { return "" },
+    objectOnClicked: ()=>{},
 });
 
 export const EditorProvider = ({children} : {children: React.ReactNode}) => {
     const [name, setName] = useState('MyEditor');
     const [editor, setEditor] = useState<EditorSetup|null>(null);
     const [selectedNode,setSelectedNode] = useState<WidgetItemType|undefined>(undefined);
-
+    const [selectedKonvaNode, setSelectedKonvaNode] = useState<Konva.Rect|undefined>(undefined);
     const [widgetNodes,setWidgetNodes] = useState<WidgetItemType[]>(initialWidgetNodes);
 
+    const [autoNodeId, autoNodeIdCounter] = useCounter(1000)
 
     // when change ( issue  1. add object not trigger  2. trigger when select )
     const onWidgetNodesChange = (data: WidgetItemType[]) => {
         setWidgetNodes(data);
-        console.log(data);
-        console.log("tree list changed.");
     };
 
     const setNodeSelected = ( n:WidgetItemType, selected: boolean ) => {
@@ -157,7 +160,8 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
                 else
                     setSelectedNode( item );
 
-            }
+            }else
+                item.selected = false
             return item;
         }
         const newWidgets = widgetNodes.map(recursiveSetSelected);
@@ -187,8 +191,10 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
 
     const addWidgetNode = (t:egWidgetTypes) =>
     {
+        autoNodeIdCounter.increment();
+
         const newWidget = {
-            label: t,
+            label: `${t}_${autoNodeId}`,
             icon: <TypedObjectIcon icon={t}/>,
             properties: {
                 type: t,
@@ -196,7 +202,8 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
                 y: 0,
                 width: 100,
                 height: 100,
-                radius: 0
+                radius: 0,
+                opacity:100
             }
         }
         const recursiveAddNode = (item:WidgetItemType)=>{
@@ -294,7 +301,7 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         const recursiveSetColor = (item:WidgetItemType) => {
             if (item.children && item.children.length > 0) item.children.map(recursiveSetColor);
             if (item.id===n.id) {
-                console.log(radius)
+                if (isNaN(radius)) radius=0;
                 item.properties.radius = radius;
                 setSelectedNode(item);
             }
@@ -312,33 +319,17 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         setRadius: setWidgetRadius
     };
 
-    const saveToFile = () => {
+    const objectOnClicked = (evt: KonvaEventObject<MouseEvent>,item:WidgetItemType) => {
 
-        let fileContent = '';
+        setNodeSelected(item,true)
+        // setSelectedKonvaNode(evt.target)
+        console.log(evt)
+        console.log(item)
+    };
 
-        const grObjectName = ( item:WidgetItemType )=>
-        {
-            return `esy_${item.properties.type}`;
-        }
+    const saveToFile = () : string => {
 
-        const recursiveGenerateCoding = (item:WidgetItemType, depth:number, parent?: WidgetItemType) =>
-        {
-            // fileContent += Array(depth).fill("\t").join('');
-            fileContent += `lv_obj_t * ${grObjectName(item)} = ${item.properties.type}_create( ${parent?grObjectName(parent):'NULL'} );\n`;
-
-            fileContent += `lv_obj_set_pos( ${grObjectName(item)} , ${item.properties.x}, ${item.properties.y} );\n`;
-            fileContent += `lv_obj_set_size( ${grObjectName(item)} , ${item.properties.width}, ${item.properties.height} );\n`;
-            fileContent += "\n";
-
-            if (item.children && item.children.length > 0)
-                for (let i = 0; i < item.children.length; i++)
-                    recursiveGenerateCoding( item.children[i],depth + 1, item );
-        }
-
-        for (let i = 0; i < widgetNodes.length; i++)
-            recursiveGenerateCoding( widgetNodes[i], 0, undefined );
-
-        console.log(fileContent);
+        return EasyVGLC.genPage( widgetNodes );
     }
 
     const contextValue = {
@@ -346,6 +337,7 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         editor,
         widgetTool,
         selectedNode,
+        selectedKonvaNode,
         widgetNodes,
         setWidgetNodes,
         addWidgetNode,
@@ -354,7 +346,9 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         onWidgetNodeDrop,
         setEditor,
 
-        saveToFile
+        saveToFile,
+
+        objectOnClicked,
     };
 
     return (

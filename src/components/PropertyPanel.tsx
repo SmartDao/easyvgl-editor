@@ -1,14 +1,16 @@
 import React from 'react'
-import {Box, ColorInput, Group, Input, NumberInput, Slider, Stack, Text} from "@mantine/core";
+import {Box, Button, ColorInput, Group, Input, NumberInput, Slider, Stack, Text} from "@mantine/core";
 import {IconHexagonLetterI,IconAugmentedReality,IconFocus2} from "@tabler/icons-react";
 import {useEditorContext} from "../context/EditorContext";
+import EasyVglConfig from "../context/Configs";
 
-const PropertyPanel = () => {
+const PropertyPanel = ( p: {showCoding:()=>void } ) => {
 
     const { widgetTool, selectedNode, onWidgetNodeDrop, onWidgetNodesChange, onWidgetNodeSelected } = useEditorContext();
 
     return (
         <Stack w="240px">
+            <Button onClick={p.showCoding}>Show Coding</Button>
             <Text>Properties</Text>
             {
                 selectedNode && (
@@ -90,12 +92,14 @@ const PropertyPanel = () => {
                                 radius="md"
                                 label="Background"
                                 placeholder="BgColor"
+                                swatches={ EasyVglConfig.themeColors }
                             />
                             <ColorInput
                                 eyeDropperIcon={<IconFocus2 style={{ width: 18, height: 18 }} stroke={1.5} />}
                                 radius="md"
                                 label="BorderColor"
                                 placeholder="BgColor"
+                                swatches={ EasyVglConfig.themeColors }
                             />
                         </Group>
                         <Group grow gap={10}>
