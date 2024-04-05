@@ -4,8 +4,11 @@ import {egWidgetTypes, useEditorContext, WidgetItemType} from "../context/Editor
 import { useMouse } from '@mantine/hooks';
 import {Stage, Layer, Rect, Text as TextItem, Transformer} from 'react-konva';
 import CanvasObject from "./CanvasObject";
+import useTransformer from "../hook/useTransformer";
 
 const Canvas = () => {
+
+    const transformer = useTransformer();
 
     const { widgetNodes,selectedKonvaNode } = useEditorContext();
     const { ref, x, y } = useMouse();
@@ -35,6 +38,13 @@ const Canvas = () => {
                     {/*{ selectedKonvaNode && <Transformer node={  }></Transformer> }*/}
                 </Layer>
             </Stage>
+            <Transformer
+                ref={transformer.transformerRef}
+                keepRatio
+                shouldOverdrawWholeArea
+                boundBoxFunc={(_,newBox)=> newBox}
+                onTransformEnd={transformer.onTransformEnd}
+            />
             <Box h={20}><Text>{`x: ${x}, y: ${y} `}</Text></Box>
         </Flex>
     )
