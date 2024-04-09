@@ -10,6 +10,7 @@ import Rect = Konva.Rect;
 import {randomId, useCounter} from "@mantine/hooks";
 import ConverterEasyVGLC from "../core/converter/easyVGL-C";
 import ConverterLVGL_C from "../core/converter/LVGL-C";
+import {PosChangeType, SizeChangeType, WidgetProperty} from "../types/Widget";
 
 export enum egWidgetTypes
 {
@@ -27,30 +28,6 @@ export enum ProjectExportMode
 {
     easyVGL_C,
     LVGL_C
-}
-
-interface  WidgetProperty
-{
-    x:number,
-    y:number,
-    width:number,
-    height:number,
-    radius:number,
-    color?: string,
-    opacity?: number, // 0-100
-    type:egWidgetTypes
-}
-
-interface PosChangeType
-{
-    x? : number
-    y? : number
-}
-
-interface SizeChangeType
-{
-    w? : number
-    h? : number
 }
 
 export interface  WidgetItemType extends ReactTreeListItemType
@@ -78,6 +55,8 @@ type WidgetTool =
 {
     setName: (node:WidgetItemType, value:string) => void;
     setColor: (node:WidgetItemType, color:string|undefined) => void;
+    setBorderColor:( node:WidgetItemType, color:string|undefined) => void;
+    setBorderOpacity:( node:WidgetItemType, opacity:number|undefined) => void;
     setPos: (node:WidgetItemType, pos:PosChangeType) => void;
     setSize: (node:WidgetItemType, size:SizeChangeType) => void;
     setOpacity: (node:WidgetItemType, opacity:number|undefined) => void;
@@ -141,6 +120,16 @@ const EditorContext = createContext<EditorContextType>({
     objectOnClicked: ()=>{},
 });
 
+const setDefaultButton = ( item:WidgetItemType ) => {
+    item.label = "Button"
+    item.properties.width = 120
+    item.properties.height = 40
+    item.properties.radius = 8
+    item.properties.color = "#EEEEEE"
+    item.properties.border = {color:"#888888",border:2,opacity:100}
+    item.text = "ButtonText"
+}
+
 export const EditorProvider = ({children} : {children: React.ReactNode}) => {
     const [name, setName] = useState('MyEditor');
     const [editor, setEditor] = useState<EditorSetup|null>(null);
@@ -201,7 +190,7 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
         autoNodeIdCounter.increment();
 
         const newWidget = {
-            label: `${t}_${autoNodeId}`,
+            label: "__unset__",
             icon: <TypedObjectIcon icon={t}/>,
             properties: {
                 type: t,
@@ -213,6 +202,14 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
                 opacity:100
             }
         }
+
+        switch( t )
+        {
+            case egWidgetTypes.button:
+                setDefaultButton(newWidget);
+                break;
+        }
+        newWidget.label = `${t}_${autoNodeId}`
         const recursiveAddNode = (item:WidgetItemType)=>{
             if (item.children && item.children.length > 0)
                 item.children = item.children.map(recursiveAddNode);
@@ -254,6 +251,43 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
             if (item.children && item.children.length > 0) item.children.map(recursiveSetColor);
             if (item.id===n.id) {
                 item.properties.color = color ? color : undefined;
+                setSelectedNode(item);
+            }
+            return item;
+        }
+        setWidgetNodes(widgetNodes.map(recursiveSetColor));
+    }
+
+    const setWidgetBorderColor = (n:WidgetItemType, color: string|undefined) => {
+
+        const recursiveSetColor = (item:WidgetItemType) => {
+            if (item.children && item.children.length > 0) item.children.map(recursiveSetColor);
+            if (item.id===n.id) {
+                if (item.properties.border) {
+                    if (color)
+                        item.properties.border!.color! = color;
+                    else
+                        item.properties.border = undefined
+                }else
+                    item.properties.border = {color:color!,border:2,opacity:100}
+                setSelectedNode(item);
+            }
+            return item;
+        }
+        setWidgetNodes(widgetNodes.map(recursiveSetColor));
+    }
+
+    const setWidgetBorderOpacity = (n:WidgetItemType, opacity: number|undefined) => {
+
+        const recursiveSetColor = (item:WidgetItemType) => {
+            if (item.children && item.children.length > 0) item.children.map(recursiveSetColor);
+            if (item.id===n.id) {
+                if (item.properties.border) {
+                    if (opacity)
+                        item.properties.border!.opacity! = opacity;
+                    else
+                        item.properties.border.opacity = 0
+                }
                 setSelectedNode(item);
             }
             return item;
@@ -320,6 +354,8 @@ export const EditorProvider = ({children} : {children: React.ReactNode}) => {
     const widgetTool = {
         setName: setWidgetName,
         setColor: setWidgetColor,
+        setBorderColor: setWidgetBorderColor,
+        setBorderOpacity: setWidgetBorderOpacity,
         setPos: setWidgetPosition,
         setSize: setWidgetSize,
         setOpacity: setWidgetOpacity,

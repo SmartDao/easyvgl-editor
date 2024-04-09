@@ -78,29 +78,6 @@ const ConverterEASYGL_C =
 
     genPage( items: WidgetItemType[] ):string
     {
-        // const recursiveGenerateCoding = (item:WidgetItemType, depth:number, parent?: WidgetItemType) =>
-        // {
-        //     if (useLVGLCase) {
-        //         // fileContent += Array(depth).fill("\t").join('');
-        //         fileContent += `lv_obj_t * ${grObjectName(item)} = ${item.properties.type}_create( ${parent ? grObjectName(parent) : 'NULL'} );\n`;
-        //
-        //         fileContent += `lv_obj_set_pos( ${grObjectName(item)} , ${item.properties.x}, ${item.properties.y} );\n`;
-        //         fileContent += `lv_obj_set_size( ${grObjectName(item)} , ${item.properties.width}, ${item.properties.height} );\n`;
-        //
-        //         if (item.properties.radius)
-        //             fileContent += `lv_obj_set_radius( ${grObjectName(item)} , ${item.properties.radius} )\n`;
-        //
-        //         if (item.properties.opacity)
-        //             fileContent += `lv_obj_set_style_bg_color( ${grObjectName(item)}, lv_color_hex( (u32)${item.properties.color}), style->onState);\n`
-        //
-        //
-        //         fileContent += "\n";
-        //     }
-        //     if (item.children && item.children.length > 0)
-        //         for (let i = 0; i < item.children.length; i++)
-        //             recursiveGenerateCoding(item.children[i], depth + 1, item);
-        //
-        // }
         return this.genStyles( items ) + this.genViews( items );
     }
 }

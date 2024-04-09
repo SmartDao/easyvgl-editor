@@ -1,75 +1,80 @@
-import React from 'react'
+import React, {RefObject} from 'react'
 import {egWidgetTypes, useEditorContext, WidgetItemType} from "../context/EditorContext";
-import {Rect} from "react-konva";
-import {Text as TextItem} from "react-konva";
-import {KonvaEventObject} from "konva/lib/Node";
+import {Rect,Text as TextItem} from "react-konva";
+import {KonvaEventObject, Node, NodeConfig} from "konva/lib/Node";
+import useTransformer from "../hook/useTransformer";
+import EsyButton from "./Widgets/EsyButton";
 
-
-const CanvasObject = ( item:WidgetItemType ) => {
+const CanvasObject = ( item: WidgetItemType, transformer: ReturnType<typeof useTransformer>, isContainer: boolean = false ) => {
 
     const { objectOnClicked, widgetTool } = useEditorContext()
 
     const onObjectDragMove = (evt: KonvaEventObject<DragEvent>) => {
-        console.log("onObjectMove")
+        // console.log("onObjectMove")
     };
 
     const onObjectDragEnd = (evt: KonvaEventObject<DragEvent>) => {
-
-        console.log(evt.target.x(),evt.target.y())
-        console.log("onObjectMoveEnd")
+        console.log("child onObjectMoveEnd",item,evt,evt.target.x(),evt.target.y())
 
         widgetTool?.setPos( item, {x:evt.target.x(),y: evt.target.y()} )
-
     };
+
+    const onObjectSelected = (evt: KonvaEventObject<MouseEvent>, itemList?:Node<NodeConfig>[] )=>{
+        objectOnClicked(evt,item)
+    }
 
     switch (item.properties.type) {
         case egWidgetTypes.view:
             return <Rect
-                draggable
+                draggable={!isContainer}
                 onDragMove={onObjectDragMove}
                 onDragEnd={onObjectDragEnd}
-                onClick={ (evt)=>{objectOnClicked(evt,item)} }
+                onClick={onObjectSelected}
                 id={item.id}
                 key={item.id}
                 width={item.properties.width}
                 height={item.properties.height}
-                x={item.properties.x}
-                y={item.properties.y}
+                x={isContainer?0:item.properties.x}
+                y={isContainer?0:item.properties.y}
                 fill={item.properties.color}
                 opacity={item.properties.opacity?item.properties.opacity/100:0}
                 cornerRadius={item.properties.radius}
+                stroke={ item.properties.border ? item.properties.border?.color : undefined }
             />;
         case egWidgetTypes.text:
             return <TextItem
-                draggable
+                draggable={!isContainer}
                 onDragMove={onObjectDragMove}
                 onDragEnd={onObjectDragEnd}
-                onClick={ (evt)=>{objectOnClicked(evt,item)} }
+                onClick={onObjectSelected}
                 text={item.text||'Text'}
                 id={item.id}
                 key={item.id}
                 width={item.properties.width}
                 height={item.properties.height}
-                x={item.properties.x}
-                y={item.properties.y}
+                x={isContainer?0:item.properties.x}
+                y={isContainer?0:item.properties.y}
                 fill={item.properties.color}
                 opacity={item.properties.opacity?item.properties.opacity/100:0}
+                stroke={ item.properties.border ? item.properties.border?.color : undefined }
                 cornerRadius={item.properties.radius}
             />;
         case egWidgetTypes.button:
+            // return EsyButton(item);
             return <Rect
-                draggable
+                draggable={!isContainer}
                 onDragMove={onObjectDragMove}
                 onDragEnd={onObjectDragEnd}
-                onClick={ (evt)=>{objectOnClicked(evt,item)} }
+                onClick={onObjectSelected}
                 id={item.id}
                 key={item.id}
                 width={item.properties.width}
                 height={item.properties.height}
-                x={item.properties.x}
-                y={item.properties.y}
+                x={isContainer?0:item.properties.x}
+                y={isContainer?0:item.properties.y}
                 fill={item.properties.color}
                 opacity={item.properties.opacity?item.properties.opacity/100:0}
+                stroke={ item.properties.border ? item.properties.border?.color : undefined }
                 cornerRadius={item.properties.radius}
             />;
         // case egWidgetTypes.image:
@@ -82,17 +87,19 @@ const CanvasObject = ( item:WidgetItemType ) => {
         //     return </>;
         default:
             return <Rect
-                draggable
+                draggable={!isContainer}
                 onDragMove={onObjectDragMove}
                 onDragEnd={onObjectDragEnd}
-                onClick={ (evt)=>{objectOnClicked(evt,item)} }
+                onClick={onObjectSelected}
                 id={item.id}
                 key={item.id}
                 width={item.properties.width}
                 height={item.properties.height}
-                x={item.properties.x} y={item.properties.y}
+                x={isContainer?0:item.properties.x}
+                y={isContainer?0:item.properties.y}
                 fill={item.properties.color}
                 opacity={item.properties.opacity?item.properties.opacity/100:0}
+                stroke={ item.properties.border ? item.properties.border?.color : undefined }
                 cornerRadius={item.properties.radius}
             />;
     }

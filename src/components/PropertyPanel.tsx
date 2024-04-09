@@ -3,6 +3,7 @@ import {Box, Button, ColorInput, Group, Input, NumberInput, Slider, Stack, Text}
 import {IconHexagonLetterI,IconAugmentedReality,IconFocus2} from "@tabler/icons-react";
 import {useEditorContext} from "../context/EditorContext";
 import EasyVglConfig from "../context/Configs";
+import {max} from "lodash";
 
 const PropertyPanel = () => {
 
@@ -78,9 +79,18 @@ const PropertyPanel = () => {
                                 leftSection="Radius"
                                 placeholder="radius of object"
                                 min={0}
-                                max={4096}
+                                max={ Math.max(selectedNode.properties.width,selectedNode.properties.height) }
                                 value={selectedNode.properties.radius}
                                 onChange={(v)=>{ widgetTool?.setRadius(selectedNode,parseInt(String(v))) }}
+                            />
+                            <Slider
+                                mt={10}
+                                size="lg"
+                                value={selectedNode.properties.radius}
+                                min={0}
+                                max={ Math.max(selectedNode.properties.width,selectedNode.properties.height) }
+                                color={selectedNode.properties.color?selectedNode.properties.color:'indigo'}
+                                onChange={ (value)=> { widgetTool?.setRadius(selectedNode,value)}}
                             />
                         </Group>
                         <Group gap={10} grow>
@@ -93,19 +103,30 @@ const PropertyPanel = () => {
                                 placeholder="BgColor"
                                 swatches={ EasyVglConfig.themeColors }
                             />
+                            <Slider
+                                mt={25}
+                                size="lg"
+                                value={selectedNode.properties.opacity||0}
+                                color={selectedNode.properties.color?(selectedNode.properties.color+Math.floor((selectedNode.properties.opacity||100)/100*0xff).toString(16)):'indigo'}
+                                onChange={ (value)=> { widgetTool?.setOpacity(selectedNode,value)}}
+                            />
+                        </Group>
+                        <Group grow gap={10}>
                             <ColorInput
+                                value={selectedNode.properties.border?selectedNode.properties.border.color:""}
+                                onChange={ (value)=> { widgetTool?.setBorderColor(selectedNode,value)}}
                                 eyeDropperIcon={<IconFocus2 style={{ width: 18, height: 18 }} stroke={1.5} />}
                                 radius="md"
                                 label="BorderColor"
                                 placeholder="BgColor"
                                 swatches={ EasyVglConfig.themeColors }
                             />
-                        </Group>
-                        <Group grow gap={10}>
                             <Slider
-                                value={selectedNode.properties.opacity||0}
-                                color={selectedNode.properties.color?(selectedNode.properties.color+Math.floor((selectedNode.properties.opacity||100)/100*0xff).toString(16)):'indigo'}
-                                onChange={ (value)=> { widgetTool?.setOpacity(selectedNode,value)}}
+                                mt={25}
+                                size="lg"
+                                value={selectedNode.properties.border?.opacity||0}
+                                color={selectedNode.properties.border?(selectedNode.properties.border.color+Math.floor((selectedNode.properties.border.opacity||100)/100*0xff).toString(16)):'indigo'}
+                                onChange={ (value)=> { widgetTool?.setBorderOpacity(selectedNode,value)}}
                             />
                         </Group>
 
